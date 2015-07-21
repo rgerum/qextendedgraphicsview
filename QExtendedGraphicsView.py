@@ -29,6 +29,17 @@ class QExtendedGraphicsView(QtGui.QGraphicsView):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.setMatrix(QtGui.QMatrix(1,0,0,1,0,0))
+        self.initialized = False
+
+    def paintEvent(self, QPaintEvent):
+        if not self.initialized:
+            self.initialized = True
+            self.fitInView()
+        super(QExtendedGraphicsView, self).paintEvent(QPaintEvent)
+
+    def resizeEvent(self, event):
+        super(QExtendedGraphicsView, self).resizeEvent(event)
+        self.fitInView()
 
     def fitInView(self):
         rect = self.origin.childrenBoundingRect()
