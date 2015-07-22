@@ -85,8 +85,6 @@ class QExtendedGraphicsView(QtGui.QGraphicsView):
         if event.button() == 2:
             self.last_pos = PosToArray(self.mapToScene(event.pos()))
             self.scene_panning = True
-        if event.button() == 1:
-            print self.mapToOrigin(event.pos())
         super(QExtendedGraphicsView, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
