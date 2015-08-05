@@ -1,15 +1,20 @@
 import sys
-from PyQt5 import QtGui, QtCore, QtWidgets
+try:
+    from PyQt5 import QtGui, QtCore
+    from PyQt5.QtWidgets import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene
+except ImportError:
+    from PyQt4 import QtGui, QtCore
+    from PyQt4.QtGui import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene
 import numpy as np
 
 def PosToArray(pos):
     return np.array([pos.x(), pos.y()])
 
-class QExtendedGraphicsView(QtWidgets.QGraphicsView):
+class QExtendedGraphicsView(QGraphicsView):
     def __init__(self):
-        QtWidgets.QGraphicsView.__init__(self)
+        QGraphicsView.__init__(self)
 
-        self.scene = QtWidgets.QGraphicsScene(self)
+        self.scene = QGraphicsScene(self)
         self.scene_pan = np.array([250,250])
         self.scene_panning = False
         self.last_pos = [0, 0]
@@ -18,11 +23,11 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
         self.setScene(self.scene)
         self.scene.setBackgroundBrush(QtCore.Qt.black)
 
-        self.scaler = QtWidgets.QGraphicsPathItem()
+        self.scaler = QGraphicsPathItem()
         self.scene.addItem(self.scaler)
-        self.origin = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.scaler)
+        self.origin = QGraphicsPixmapItem(QtGui.QPixmap(), self.scaler)
 
-        self.hud = QtWidgets.QGraphicsPathItem()
+        self.hud = QGraphicsPathItem()
         self.scene.addItem(self.hud)
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
