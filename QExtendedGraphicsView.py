@@ -2,9 +2,11 @@ import sys
 try:
     from PyQt5 import QtGui, QtCore
     from PyQt5.QtWidgets import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene
+    qt_version = '5'
 except ImportError:
     from PyQt4 import QtGui, QtCore
     from PyQt4.QtGui import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene
+    qt_version = '4'
 import numpy as np
 
 def PosToArray(pos):
@@ -107,7 +109,11 @@ class QExtendedGraphicsView(QGraphicsView):
         super(QExtendedGraphicsView, self).mouseReleaseEvent(event)
 
     def wheelEvent(self, event):
-        if event.angleDelta().y() > 0:
+        if qt_version == '5':
+            angle = event.angleDelta().y()
+        else:
+            angle = event.delta()
+        if angle > 0:
             self.scaleOrigin(1.1, event.pos())
         else:
             self.scaleOrigin(0.9, event.pos())
