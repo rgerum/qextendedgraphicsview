@@ -31,6 +31,38 @@ class QExtendedGraphicsView(QGraphicsView):
 
         self.hud = QGraphicsPathItem()
         self.scene.addItem(self.hud)
+        self.hud_lowerRight = QGraphicsPathItem()
+        self.scene.addItem(self.hud_lowerRight)
+        self.hud_lowerRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()))
+
+        self.hud_upperRight = QGraphicsPathItem()
+        self.scene.addItem(self.hud_upperRight)
+        self.hud_upperRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), 0))
+
+        self.hud_lowerLeft = QGraphicsPathItem()
+        self.scene.addItem(self.hud_lowerLeft)
+        self.hud_lowerLeft.setTransform(QtGui.QTransform(1, 0, 0, 1, 0, self.size().height()))
+
+        self.hud_lowerCenter = QGraphicsPathItem()
+        self.scene.addItem(self.hud_lowerCenter)
+        self.hud_lowerCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()))
+
+        self.hud_upperCenter = QGraphicsPathItem()
+        self.scene.addItem(self.hud_upperCenter)
+        self.hud_upperCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, 0))
+
+        self.hud_leftCenter = QGraphicsPathItem()
+        self.scene.addItem(self.hud_leftCenter)
+        self.hud_leftCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, 0, self.size().height()*0.5))
+
+        self.hud_rightCenter = QGraphicsPathItem()
+        self.scene.addItem(self.hud_rightCenter)
+        self.hud_rightCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()*0.5))
+
+        self.hud_center = QGraphicsPathItem()
+        self.scene.addItem(self.hud_center)
+        self.hud_center.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()*0.5))
+
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -54,6 +86,16 @@ class QExtendedGraphicsView(QGraphicsView):
 
     def resizeEvent(self, event):
         super(QExtendedGraphicsView, self).resizeEvent(event)
+        self.hud_lowerRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()))
+        self.hud_upperRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), 0))
+        self.hud_lowerLeft.setTransform(QtGui.QTransform(1, 0, 0, 1, 0, self.size().height()))
+
+        self.hud_lowerCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()))
+        self.hud_upperCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, 0))
+        self.hud_leftCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, 0, self.size().height()*0.5))
+        self.hud_rightCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()*0.5))
+
+        self.hud_center.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()*0.5))
         self.fitInView()
 
     def fitInView(self):
