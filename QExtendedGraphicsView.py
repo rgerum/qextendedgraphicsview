@@ -63,7 +63,6 @@ class QExtendedGraphicsView(QGraphicsView):
         self.scene.addItem(self.hud_center)
         self.hud_center.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()*0.5))
 
-
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
@@ -72,8 +71,8 @@ class QExtendedGraphicsView(QGraphicsView):
 
     def GetExtend(self):
         scale = self.scaler.transform().m11()
-        startX = -self.origin.transform().dx()#/scale
-        startY = -self.origin.transform().dy()#/scale
+        startX = -self.origin.transform().dx()
+        startY = -self.origin.transform().dy()
         endX = self.size().width()/scale+startX
         endY = self.size().height()/scale+startY
         return [startX, startY, endX, endY]
@@ -107,14 +106,14 @@ class QExtendedGraphicsView(QGraphicsView):
 
     def fitInView(self):
         rect = self.origin.childrenBoundingRect()
-        self.origin.setTransform(QtGui.QTransform())#self.origin.setMatrix(QtGui.QMatrix(1,0,0,1,0,0))
+        self.origin.setTransform(QtGui.QTransform())
         scaleX = self.size().width()/rect.width()
         scaleY = self.size().height()/rect.height()
         scale = min((scaleX, scaleY))
-        self.scaler.setTransform(QtGui.QTransform(scale, 0, 0, scale, 0, 0))#self.scaler.setMatrix(QtGui.QMatrix(scale, 0, 0, scale, 0, 0))
+        self.scaler.setTransform(QtGui.QTransform(scale, 0, 0, scale, 0, 0))
         xoff = self.size().width()-rect.width()*scale
         yoff = self.size().height()-rect.height()*scale
-        self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, xoff*0.5/scale,  yoff*0.5/scale))#self.setTransform(QtGui.QTransform())#self.origin.translate( xoff*0.5/scale,  yoff*0.5/scale)
+        self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, xoff*0.5/scale,  yoff*0.5/scale))
         self.panEvent(xoff, yoff)
         self.zoomEvent(scale, QtCore.QPoint(0,0))
 
@@ -156,7 +155,6 @@ class QExtendedGraphicsView(QGraphicsView):
             new_pos = PosToArray(self.mapToScene(event.pos()))
             delta = new_pos-self.last_pos
             self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, *delta/self.scaler.transform().m11()), combine=True)
-            #self.origin.translate(*delta/self.scaler.transform().m11())
             self.last_pos = new_pos
         super(QExtendedGraphicsView, self).mouseMoveEvent(event)
 
