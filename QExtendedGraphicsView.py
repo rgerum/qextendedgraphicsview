@@ -85,7 +85,15 @@ class QExtendedGraphicsView(QGraphicsView):
         super(QExtendedGraphicsView, self).paintEvent(QPaintEvent)
 
     def resizeEvent(self, event):
+        startX, startY, endX, endY = self.GetExtend()
+        rect = self.origin.childrenBoundingRect()
+        if endX-startX > rect.width()-10 or endY-startY > rect.height()-10:
+            dofit = True
+        else:
+            dofit = False
         super(QExtendedGraphicsView, self).resizeEvent(event)
+        if dofit:
+            self.fitInView()
         self.hud_lowerRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()))
         self.hud_upperRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), 0))
         self.hud_lowerLeft.setTransform(QtGui.QTransform(1, 0, 0, 1, 0, self.size().height()))
@@ -96,7 +104,6 @@ class QExtendedGraphicsView(QGraphicsView):
         self.hud_rightCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()*0.5))
 
         self.hud_center.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()*0.5))
-        self.fitInView()
 
     def fitInView(self):
         rect = self.origin.childrenBoundingRect()
