@@ -38,6 +38,14 @@ class QExtendedGraphicsView(QGraphicsView):
         self.setTransform(QtGui.QTransform())
         self.initialized = False
 
+    def GetExtend(self):
+        scale = self.scaler.transform().m11()
+        startX = -self.origin.transform().dx()#/scale
+        startY = -self.origin.transform().dy()#/scale
+        endX = self.size().width()/scale+startX
+        endY = self.size().height()/scale+startY
+        return [startX, startY, endX, endY]
+
     def paintEvent(self, QPaintEvent):
         if not self.initialized:
             self.initialized = True
