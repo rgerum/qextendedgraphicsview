@@ -1,11 +1,11 @@
 import sys
 try:
     from PyQt5 import QtGui, QtCore
-    from PyQt5.QtWidgets import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene
+    from PyQt5.QtWidgets import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene, QApplication
     qt_version = '5'
 except ImportError:
     from PyQt4 import QtGui, QtCore
-    from PyQt4.QtGui import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene
+    from PyQt4.QtGui import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene, QApplication
     qt_version = '4'
 import numpy as np
 
@@ -129,7 +129,7 @@ class QExtendedGraphicsView(QGraphicsView):
         return
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     view = QExtendedGraphicsView()
     view.show()
     sys.exit(app.exec_())
