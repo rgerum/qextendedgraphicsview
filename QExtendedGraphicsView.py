@@ -129,7 +129,7 @@ class QExtendedGraphicsView(QGraphicsView):
         self.scaler.setTransform(QtGui.QTransform(scale, 0, 0, scale, 0, 0), combine=True)
         s0 = self.scaler.transform().m11()
         self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, +x/s0, +y/s0), combine=True)
-        self.zoomEvent(scale, pos)
+        self.zoomEvent(self.scaler.transform().m11(), pos)
 
     def getOriginScale(self):
         return self.scaler.transform().m11()
