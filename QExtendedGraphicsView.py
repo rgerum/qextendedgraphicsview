@@ -106,6 +106,7 @@ class QExtendedGraphicsView(QGraphicsView):
             if len(item.childItems()):
                 rect = self.GetIterativeRect(item)
                 rect = item.transform().mapRect(rect)
+                #rect.moveTo(item.transform().map(item.pos()))
             else:
                 #print item, item.boundingRect(), item.pos()
                 rect = item.boundingRect()
@@ -170,7 +171,7 @@ class QExtendedGraphicsView(QGraphicsView):
         self.UpdateRect()
 
     def fitInView(self):
-        """
+
         rect = self.GetIterativeRect(self.origin)
         t = self.origin.transform()
         points = np.array([PosToArray(t.map(pos)) for pos in [rect.topLeft(), rect.topRight(), rect.bottomLeft(), rect.bottomRight()]])
@@ -178,8 +179,10 @@ class QExtendedGraphicsView(QGraphicsView):
         dy = min(points[:,1])
         print(points, points[:,0])
         print(dx,dy)
-        t = self.origin.transform()
-        self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, -dx, dy), combine=True)
+        print("t.inverted()", t.inverted())
+        print("-------",t.inverted()[0].map(dx, dy))
+        dx, dy = dx*t.m11()+dy*t.m12(), dx*t.m21()+dy*t.m22()#t.inverted()[0].map(dx, dy)
+        self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, -dx, -dy), combine=True)
         rect = self.GetIterativeRect(self.origin)
         t = self.origin.transform()
         points = np.array([PosToArray(t.map(pos)) for pos in [rect.topLeft(), rect.topRight(), rect.bottomLeft(), rect.bottomRight()]])
@@ -187,12 +190,13 @@ class QExtendedGraphicsView(QGraphicsView):
         dy = min(points[:,1])
         print(points, points[:,0])
         print(dx,dy)
-        t = self.origin.transform()
-        return
-        """
+        #t = self.origin.transform()
+        #return
+
         rect = self.translater.childrenBoundingRect()
         rect = self.GetOriginRect()
         rect = self.GetIterativeRect(self.translater)#self.origin.childrenBoundingRect()
+        self.origin.translate(-rect.x(), -rect.y())
         print(" self.GetIterativeRect(self.translater)", rect)
         self.translater.setTransform(QtGui.QTransform())
         scaleX = self.size().width()/rect.width()
