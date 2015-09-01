@@ -125,6 +125,7 @@ class QExtendedGraphicsView(QGraphicsView):
         self.hud_rightCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()*0.5))
 
         self.hud_center.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()*0.5))
+        self.setSceneRect(0, 0, self.size().width(), self.size().height())
 
     def rotate(self, angle):
         rect = self.GetIterativeRect(self.origin)
