@@ -29,6 +29,7 @@ class QExtendedGraphicsView(QGraphicsView):
         self.scene.addItem(self.scaler)
         self.translater = QGraphicsPixmapItem(QtGui.QPixmap(), self.scaler)
         self.origin = QGraphicsPixmapItem(QtGui.QPixmap(), self.translater)
+        self.origin.angle = 0
 
         self.hud = QGraphicsPathItem()
         self.scene.addItem(self.hud)
@@ -70,13 +71,21 @@ class QExtendedGraphicsView(QGraphicsView):
         self.setTransform(QtGui.QTransform())
         self.initialized = False
 
-    def GetExtend(self):
+    def GetExtend(self, with_transform=False):
         scale = self.scaler.transform().m11()
-        startX = -self.translater.transform().dx()
-        startY = -self.translater.transform().dy()
-        endX = self.size().width()/scale+startX
-        endY = self.size().height()/scale+startY
-        return [startX, startY, endX, endY]
+        start_x = -self.translater.transform().dx()
+        start_y = -self.translater.transform().dy()
+        end_x = self.size().width()/scale+start_x
+        end_y = self.size().height()/scale+start_y
+        if with_transform:
+            t = self.origin.transform()
+            c = np.cos(self.origin.angle*np.pi/180)
+            s = np.sin(self.origin.angle*np.pi/180)
+            dx, dy = t.dx()*c+t.dy()*s, -t.dx()*s+t.dy()*c
+            points = np.array([(pos[0]*c+pos[1]*s-dx, -pos[0]*s+pos[1]*c-dy) for pos in [(start_x, start_y), (end_x, start_y), (start_x, end_y), (end_x, end_y)]])
+            start_x, end_x = min(points[:, 0]), max(points[:, 0])
+            start_y, end_y = min(points[:, 1]), max(points[:, 1])
+        return [start_x, start_y, end_x, end_y]
 
     def paintEvent(self, QPaintEvent):
         if not self.initialized:
@@ -123,6 +132,7 @@ class QExtendedGraphicsView(QGraphicsView):
         s = np.sin(angle*np.pi/180)
         y = rect.width()*0.5
         x = -rect.height()*0.5
+        self.origin.angle += angle
         self.origin.setTransform(QtGui.QTransform(c, s, -s, c, x*c+y*s-x, -x*s+y*c-y), combine=True)
 
     def fitInView(self):
