@@ -70,6 +70,7 @@ class QExtendedGraphicsView(QGraphicsView):
 
         self.setTransform(QtGui.QTransform())
         self.initialized = False
+        self.painted = False
 
     def GetExtend(self, with_transform=False):
         scale = self.scaler.transform().m11()
@@ -92,6 +93,7 @@ class QExtendedGraphicsView(QGraphicsView):
             self.initialized = True
             self.fitInView()
         super(QExtendedGraphicsView, self).paintEvent(QPaintEvent)
+        self.painted = True
 
     def GetIterativeRect(self, parent):
         new_rect = QtCore.QRectF()
