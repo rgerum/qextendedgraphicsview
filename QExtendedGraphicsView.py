@@ -98,6 +98,8 @@ class QExtendedGraphicsView(QGraphicsView):
     def GetIterativeRect(self, parent):
         new_rect = QtCore.QRectF()
         for item in parent.childItems():
+            if item.isVisible() == False:
+                continue          
             if len(item.childItems()):
                 rect = self.GetIterativeRect(item)
                 rect = item.transform().mapRect(rect)
