@@ -220,6 +220,7 @@ class QExtendedGraphicsView(QGraphicsView):
             self.scaleOrigin(1.1, event.pos())
         else:
             self.scaleOrigin(0.9, event.pos())
+        super(QExtendedGraphicsView, self).wheelEvent(event)
 
     def zoomEvent(self, scale, pos):
         pass
