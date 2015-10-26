@@ -212,6 +212,11 @@ class QExtendedGraphicsView(QGraphicsView):
         super(QExtendedGraphicsView, self).mouseReleaseEvent(event)
 
     def wheelEvent(self, event):
+        event.ignore()
+        super(QExtendedGraphicsView, self).wheelEvent(event)
+        if event.isAccepted():
+            return
+
         if qt_version == '5':
             angle = event.angleDelta().y()
         else:
@@ -220,7 +225,7 @@ class QExtendedGraphicsView(QGraphicsView):
             self.scaleOrigin(1.1, event.pos())
         else:
             self.scaleOrigin(0.9, event.pos())
-        super(QExtendedGraphicsView, self).wheelEvent(event)
+        event.accept()
 
     def zoomEvent(self, scale, pos):
         pass
