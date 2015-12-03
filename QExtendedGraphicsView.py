@@ -154,8 +154,11 @@ class QExtendedGraphicsView(QGraphicsView):
         rect = self.GetIterativeRect(self.translater)
         self.origin.translate(-rect.x(), -rect.y())
         self.translater.setTransform(QtGui.QTransform())
-        scaleX = self.size().width()/rect.width()
-        scaleY = self.size().height()/rect.height()
+        try:
+            scaleX = self.size().width()/rect.width()
+            scaleY = self.size().height()/rect.height()
+        except ZeroDivisionError:
+            return
         scale = min((scaleX, scaleY))
         self.scaler.setTransform(QtGui.QTransform(scale, 0, 0, scale, 0, 0))
         xoff = self.size().width()-rect.width()*scale
