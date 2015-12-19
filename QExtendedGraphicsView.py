@@ -1,3 +1,4 @@
+from __future__ import division
 import sys
 try:
     from PyQt5 import QtGui, QtCore
@@ -71,6 +72,18 @@ class QExtendedGraphicsView(QGraphicsView):
         self.setTransform(QtGui.QTransform())
         self.initialized = False
         self.painted = False
+        self.view_rect = [1, 1]
+        self.fitted = 1
+        self.rotation = 0
+        self.setStyleSheet("border-width: 0px; border-style: outset;")
+        #self.setContentsMargins(0, 0, 0, 0)
+
+    def setExtend(self, width, height):
+        if self.fitted and self.view_rect != [width, height]:
+            self.view_rect = [width, height]
+            self.fitInView()
+            return
+        self.view_rect = [width, height]
 
     def GetExtend(self, with_transform=False):
         scale = self.scaler.transform().m11()
@@ -95,29 +108,9 @@ class QExtendedGraphicsView(QGraphicsView):
         super(QExtendedGraphicsView, self).paintEvent(QPaintEvent)
         self.painted = True
 
-    def GetIterativeRect(self, parent):
-        new_rect = QtCore.QRectF()
-        for item in parent.childItems():
-            if item.isVisible() == False:
-                continue          
-            if len(item.childItems()):
-                rect = self.GetIterativeRect(item)
-                rect = item.transform().mapRect(rect)
-            else:
-                rect = item.boundingRect()
-            rect.moveTo(item.pos())
-            new_rect |= rect
-        return new_rect
-
     def resizeEvent(self, event):
-        startX, startY, endX, endY = self.GetExtend()
-        rect = self.GetIterativeRect(self.translater)
-        if endX-startX > rect.width()-10 or endY-startY > rect.height()-10:
-            dofit = True
-        else:
-            dofit = False
         super(QExtendedGraphicsView, self).resizeEvent(event)
-        if dofit:
+        if self.fitted:
             self.fitInView()
         self.hud_lowerRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()))
         self.hud_upperRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), 0))
@@ -132,40 +125,29 @@ class QExtendedGraphicsView(QGraphicsView):
         self.setSceneRect(0, 0, self.size().width(), self.size().height())
 
     def rotate(self, angle):
-        rect = self.GetIterativeRect(self.origin)
         c = np.cos(angle*np.pi/180)
         s = np.sin(angle*np.pi/180)
-        y = rect.width()*0.5
-        x = -rect.height()*0.5
+        y = self.view_rect[0]*0.5
+        x = -self.view_rect[1]*0.5
         self.origin.angle += angle
+        self.rotation = (self.rotation+angle) % 360
         self.origin.setTransform(QtGui.QTransform(c, s, -s, c, x*c+y*s-x, -x*s+y*c-y), combine=True)
+        if self.fitted:
+            self.fitInView()
 
     def fitInView(self):
-        # Move top left corner to origin
-        rect = self.GetIterativeRect(self.origin)
-        t = self.origin.transform()
-        points = np.array([PosToArray(t.map(pos)) for pos in [rect.topLeft(), rect.topRight(), rect.bottomLeft(), rect.bottomRight()]])
-        dx = min(points[:,0])
-        dy = min(points[:,1])
-        dx, dy = dx*t.m11()+dy*t.m12(), dx*t.m21()+dy*t.m22()
-        self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, -dx, -dy), combine=True)
-
         # Reset View
-        rect = self.GetIterativeRect(self.translater)
-        self.origin.translate(-rect.x(), -rect.y())
-        self.translater.setTransform(QtGui.QTransform())
-        try:
-            scaleX = self.size().width()/rect.width()
-            scaleY = self.size().height()/rect.height()
-        except ZeroDivisionError:
-            return
-        scale = min((scaleX, scaleY))
+        width, height = self.view_rect
+        scale = min(( self.size().width()/width, self.size().height()/height ))
+        if self.rotation == 90 or self.rotation == 270:
+            scale = min(( self.size().width()/height, self.size().height()/width ))
         self.scaler.setTransform(QtGui.QTransform(scale, 0, 0, scale, 0, 0))
-        xoff = self.size().width()-rect.width()*scale
-        yoff = self.size().height()-rect.height()*scale
+        xoff = self.size().width()-width*scale
+        yoff = self.size().height()-height*scale
         self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, xoff*0.5/scale,  yoff*0.5/scale))
         self.panEvent(xoff, yoff)
         self.zoomEvent(scale, QtCore.QPoint(0,0))
+        self.fitted = 1
 
     def translateOrigin(self, x, y):
         self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, x, y))
@@ -180,6 +162,7 @@ class QExtendedGraphicsView(QGraphicsView):
         s0 = self.scaler.transform().m11()
         self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, +x/s0, +y/s0), combine=True)
         self.zoomEvent(self.scaler.transform().m11(), pos)
+        self.fitted = 0
 
     def getOriginScale(self):
         return self.scaler.transform().m11()
@@ -206,6 +189,7 @@ class QExtendedGraphicsView(QGraphicsView):
             delta = new_pos-self.last_pos
             self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, *delta/self.scaler.transform().m11()), combine=True)
             self.last_pos = new_pos
+            self.fitted = 0
         super(QExtendedGraphicsView, self).mouseMoveEvent(event)
 
 
