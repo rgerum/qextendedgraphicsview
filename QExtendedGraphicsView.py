@@ -177,6 +177,17 @@ class QExtendedGraphicsView(QGraphicsView):
         return QtCore.QPoint(pos.x()/self.scaler.transform().m11()-self.translater.transform().dx(),
                              pos.y()/self.scaler.transform().m22()-self.translater.transform().dy())
 
+    def mapFromOrigin(self, x, y=None):
+        try:
+            x = x.x()
+            y = y.y()
+        except:
+            pass
+        #pos = self.mapToScene(pos)
+        pos = QtCore.QPoint( (x+self.translater.transform().dx())*self.scaler.transform().m11(),
+                              (y+self.translater.transform().dy())*self.scaler.transform().m22())
+        return self.mapFromScene(pos)
+
     def mousePressEvent(self, event):
         if event.button() == 2:
             self.last_pos = PosToArray(self.mapToScene(event.pos()))
