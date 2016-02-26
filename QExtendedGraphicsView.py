@@ -150,6 +150,7 @@ class QExtendedGraphicsView(QGraphicsView):
         self.fitted = 1
 
     def translateOrigin(self, x, y):
+        # TODO do we still use this function or can we remove it?
         self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, x, y))
         self.panEvent(x, y)
 
@@ -203,6 +204,8 @@ class QExtendedGraphicsView(QGraphicsView):
             self.fitted = 0
         super(QExtendedGraphicsView, self).mouseMoveEvent(event)
 
+    def DoTranslateOrigin(self, delta):
+        self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, *delta), combine=True)
 
     def mouseReleaseEvent(self, event):
         if event.button() == 2:
