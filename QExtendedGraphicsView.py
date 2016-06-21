@@ -1,23 +1,18 @@
 from __future__ import division
 import sys
-try:
-    from PyQt5 import QtGui, QtCore
-    from PyQt5.QtWidgets import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene, QApplication, QGraphicsRectItem
-    qt_version = '5'
-except ImportError:
-    from PyQt4 import QtGui, QtCore
-    from PyQt4.QtGui import QGraphicsView, QGraphicsPathItem, QGraphicsPixmapItem, QGraphicsScene, QApplication, QGraphicsRectItem
-    qt_version = '4'
+
+from qtpy import QtGui, QtCore, QtWidgets
+
 import numpy as np
 
 def PosToArray(pos):
     return np.array([pos.x(), pos.y()])
 
-class QExtendedGraphicsView(QGraphicsView):
+class QExtendedGraphicsView(QtWidgets.QGraphicsView):
     def __init__(self):
-        QGraphicsView.__init__(self)
+        QtWidgets.QGraphicsView.__init__(self)
 
-        self.scene = QGraphicsScene(self)
+        self.scene = QtWidgets.QGraphicsScene(self)
         self.scene_pan = np.array([250,250])
         self.scene_panning = False
         self.last_pos = [0, 0]
@@ -26,43 +21,43 @@ class QExtendedGraphicsView(QGraphicsView):
         self.setScene(self.scene)
         self.scene.setBackgroundBrush(QtCore.Qt.black)
 
-        self.scaler = QGraphicsPixmapItem(QtGui.QPixmap())
+        self.scaler = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap())
         self.scene.addItem(self.scaler)
-        self.translater = QGraphicsPixmapItem(QtGui.QPixmap(), self.scaler)
-        self.origin = QGraphicsPixmapItem(QtGui.QPixmap(), self.translater)
+        self.translater = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.scaler)
+        self.origin = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.translater)
         self.origin.angle = 0
 
-        self.hud = QGraphicsPathItem()
+        self.hud = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud)
-        self.hud_lowerRight = QGraphicsPathItem()
+        self.hud_lowerRight = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_lowerRight)
         self.hud_lowerRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()))
 
-        self.hud_upperRight = QGraphicsPathItem()
+        self.hud_upperRight = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_upperRight)
         self.hud_upperRight.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), 0))
 
-        self.hud_lowerLeft = QGraphicsPathItem()
+        self.hud_lowerLeft = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_lowerLeft)
         self.hud_lowerLeft.setTransform(QtGui.QTransform(1, 0, 0, 1, 0, self.size().height()))
 
-        self.hud_lowerCenter = QGraphicsPathItem()
+        self.hud_lowerCenter = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_lowerCenter)
         self.hud_lowerCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()))
 
-        self.hud_upperCenter = QGraphicsPathItem()
+        self.hud_upperCenter = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_upperCenter)
         self.hud_upperCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, 0))
 
-        self.hud_leftCenter = QGraphicsPathItem()
+        self.hud_leftCenter = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_leftCenter)
         self.hud_leftCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, 0, self.size().height()*0.5))
 
-        self.hud_rightCenter = QGraphicsPathItem()
+        self.hud_rightCenter = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_rightCenter)
         self.hud_rightCenter.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width(), self.size().height()*0.5))
 
-        self.hud_center = QGraphicsPathItem()
+        self.hud_center = QtWidgets.QGraphicsPathItem()
         self.scene.addItem(self.hud_center)
         self.hud_center.setTransform(QtGui.QTransform(1, 0, 0, 1, self.size().width()*0.5, self.size().height()*0.5))
 
@@ -218,9 +213,10 @@ class QExtendedGraphicsView(QGraphicsView):
         if event.isAccepted():
             return
 
-        if qt_version == '5':
+        #if qt_version == '5':
+        try:  # PyQt 5
             angle = event.angleDelta().y()
-        else:
+        except AttributeError:  # PyQt 4
             angle = event.delta()
         if angle > 0:
             self.scaleOrigin(1.1, event.pos())
@@ -239,7 +235,7 @@ class QExtendedGraphicsView(QGraphicsView):
         return
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     view = QExtendedGraphicsView()
     view.show()
     sys.exit(app.exec_())
