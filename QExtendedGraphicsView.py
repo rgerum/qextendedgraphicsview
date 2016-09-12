@@ -74,11 +74,17 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
         #self.setContentsMargins(0, 0, 0, 0)
 
     def setExtend(self, width, height):
+        do_rotate = 0
+        if self.rotation != 0 and self.view_rect[0] == 1:
+            do_rotate = self.rotation
         if self.fitted and self.view_rect != [width, height]:
             self.view_rect = [width, height]
             self.fitInView()
-            return
-        self.view_rect = [width, height]
+        else:
+            self.view_rect = [width, height]
+        if do_rotate:
+            self.rotation = 0
+            self.rotate(do_rotate)
 
     def GetExtend(self, with_transform=False):
         scale = self.scaler.transform().m11()
@@ -120,6 +126,9 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
         self.setSceneRect(0, 0, self.size().width(), self.size().height())
 
     def rotate(self, angle):
+        if self.view_rect[0] == 1:
+            self.rotation = (self.rotation + angle) % 360
+            return
         c = np.cos(angle*np.pi/180)
         s = np.sin(angle*np.pi/180)
         y = self.view_rect[0]*0.5
