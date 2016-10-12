@@ -10,11 +10,38 @@ def PosToArray(pos):
     return np.array([pos.x(), pos.y()])
 
 
+class MyScene(QtWidgets.QGraphicsScene):
+    def __init__(self, parent, dropTarget=None):
+        QtWidgets.QGraphicsScene.__init__(self, parent)
+        if dropTarget is None:
+            self.setAcceptDrops(False)
+        self.dropTarget = dropTarget
+
+    def dragEnterEvent(self, e):
+        if self.dropTarget:
+            return self.dropTarget.dragEnterEvent(e)
+
+        e.acceptProposedAction()
+
+    def dragMoveEvent(self, e):
+        if self.dropTarget:
+            return self.dropTarget.dragMoveEvent(e)
+        e.acceptProposedAction()
+
+    def dropEvent(self, e):
+        if self.dropTarget:
+            return self.dropTarget.dropEvent(e)
+        self.parent()
+        e.accept()
+
 class QExtendedGraphicsView(QtWidgets.QGraphicsView):
-    def __init__(self):
+    def __init__(self, dropTarget=None):
         QtWidgets.QGraphicsView.__init__(self)
 
-        self.scene = QtWidgets.QGraphicsScene(self)
+        if dropTarget:
+            self.scene = MyScene(self, dropTarget)
+        else:
+            self.scene = QtWidgets.QGraphicsScene(self)
         self.scene_pan = np.array([250, 250])
         self.scene_panning = False
         self.last_pos = [0, 0]
