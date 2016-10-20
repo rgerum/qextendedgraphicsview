@@ -111,8 +111,8 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
         self.rotater1.resetTransform()
         self.origin.resetTransform()
         self.view_rect = [width, height]
-        self.rotater1.translate(width / 2, height / 2)
-        self.origin.translate(-width / 2, -height / 2)
+        self.rotater1.setTransform(QtGui.QTransform(1, 0, 0, 1, width / 2, height / 2))
+        self.origin.setTransform(QtGui.QTransform(1, 0, 0, 1, -width / 2, -height / 2))
         if do_fit_to_view:
             self.fitInView()
 
@@ -160,7 +160,7 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
     def rotate(self, angle):
         self.rotation = (self.rotation + angle) % 360
         self.origin.angle += angle
-        self.rotater2.rotate(angle)
+        self.rotater2.setRotation(self.origin.angle)
         if self.fitted:
             self.fitInView()
 
