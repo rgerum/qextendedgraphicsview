@@ -117,20 +117,26 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
             self.fitInView()
 
     def GetExtend(self, with_transform=False):
-        scale = self.scaler.transform().m11()
-        start_x = -self.translater.transform().dx()
-        start_y = -self.translater.transform().dy()
-        end_x = self.size().width() / scale + start_x
-        end_y = self.size().height() / scale + start_y
+        # get the cosine and sine for the rotation
+        c = np.cos(self.origin.angle * np.pi / 180)
+        s = np.sin(self.origin.angle * np.pi / 180)
+        
         if with_transform:
-            t = self.origin.transform() * self.rotater2.transform() * self.rotater1.transform()
-            c = np.cos(self.origin.angle * np.pi / 180)
-            s = np.sin(self.origin.angle * np.pi / 180)
-            dx, dy = t.dx() * c + t.dy() * s, -t.dx() * s + t.dy() * c
-            points = np.array([(pos[0] * c + pos[1] * s - dx, -pos[0] * s + pos[1] * c - dy) for pos in
-                               [(start_x, start_y), (end_x, start_y), (start_x, end_y), (end_x, end_y)]])
-            start_x, end_x = min(points[:, 0]), max(points[:, 0])
-            start_y, end_y = min(points[:, 1]), max(points[:, 1])
+            # compose the transformation matrix
+            t = self.origin.transform() * QtGui.QTransform(c, s, -s, c, 0, 0) * self.rotater1.transform() * self.translater.transform() * self.scaler.transform()
+        else:
+            # leave out the rotation
+            t = self.origin.transform() * self.rotater1.transform() * self.translater.transform() * self.scaler.transform()
+        # transfrom upper left and lower right pixel
+        start = t.inverted()[0].map(QtCore.QPoint(0, 0))
+        end = t.inverted()[0].map(QtCore.QPoint(self.size().width(), self.size().height()))
+        # split in x and y
+        start_x, start_y = start.x(), start.y()
+        end_x, end_y = end.x(), end.y()
+        # sort vales
+        start_x, end_x = sorted([start_x, end_x])
+        start_y, end_y = sorted([start_y, end_y])
+        # and there we are!
         return [start_x, start_y, end_x, end_y]
 
     def paintEvent(self, QPaintEvent):
