@@ -56,7 +56,8 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
 
         self.rotater1 = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.translater)
         self.rotater2 = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.rotater1)
-        self.origin = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.rotater2)
+        self.offset = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.rotater2)
+        self.origin = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(), self.offset)
         self.origin.angle = 0
 
         self.hud = QtWidgets.QGraphicsPathItem()
@@ -241,7 +242,7 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
         super(QExtendedGraphicsView, self).mouseMoveEvent(event)
 
     def DoTranslateOrigin(self, delta):
-        self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, *delta), combine=True)
+        self.offset.setTransform(QtGui.QTransform(1, 0, 0, 1, *delta), combine=True)
 
     def mouseReleaseEvent(self, event):
         if event.button() == 2:
