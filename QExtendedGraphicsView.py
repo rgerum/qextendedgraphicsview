@@ -185,6 +185,35 @@ class QExtendedGraphicsView(QtWidgets.QGraphicsView):
         self.zoomEvent(scale, QtCore.QPoint(0, 0))
         self.fitted = 1
 
+    def centerOn(self, x, y):
+        """ center the view on pos(x,y)"""
+        # get the size of the dispalyed image in px
+        width, height = self.view_rect
+        # print("image dimensions:", width,height)
+
+        # check for rotation
+        if self.rotation == 180:
+            x = width - x
+            y = height - y
+        elif self.rotation == 270 or self.rotation == 90:
+            pass
+            # TODO: implement CenterOn for rotation of 90 or 270 degrees
+
+        # get the current scale factor
+        scale = self.scaler.transform().m11()
+
+        # calculate center of view position
+        # as it depends on the current window size and the pixmap size
+        # calculation in image pixels
+        xoff = self.size().width()/scale - width
+        yoff = self.size().height()/scale - height
+
+        # move the target coordinates to the center of the view
+        # part 1 -> move point to the center of image (yes image not view!)
+        # part 2 -> add offset between image and view
+        self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, (width/2 - x) + xoff/2 , (height/2 - y) + yoff/2),
+                                     combine=False)
+
     def translateOrigin(self, x, y):
         # TODO do we still use this function or can we remove it?
         self.translater.setTransform(QtGui.QTransform(1, 0, 0, 1, x, y))
